@@ -62,6 +62,20 @@ class Individual():
         return fitness
 
 
+def main():
+    global POPULATION_SIZE
+
+    #current generation number
+    generation = 1
+
+    #bool value to tell us if the target has been found
+    found = False
+    pupulation = []
+
+    #this loop initializes all the population with all variations
+    for _ in range(POPULATION_SIZE):
+        gnome = Individual.createGenome()
+        pupulation.append(Individual(gnome))
 
 
         
