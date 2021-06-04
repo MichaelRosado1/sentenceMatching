@@ -10,12 +10,13 @@ QRSTUVWXYZ 1234567890, .-;:_!"#%&/()=?@${[]}'''
 TARGET = "I love computer science"
 
 #this class will represent individuals in each generation
-class Individual():
+class Individual(object):
     def __init__(self, chromosome):
         self.chromosome = chromosome
         self.fitness = self.calculateFitness()
 
     #function to create randome genes
+    @classmethod
     def mutatedGenes(self):
         global GENES
         #random.choices will select a random letter from the genes set of chars
@@ -23,6 +24,7 @@ class Individual():
         return gene
 
     #function to create the chromosome of genes
+    @classmethod
     def createGenome(self):
         global TARGET
         gnomeLength = len(TARGET)
@@ -64,20 +66,59 @@ class Individual():
 
 def main():
     global POPULATION_SIZE
-
-    #current generation number
+  
+    #current generation
     generation = 1
-
-    #bool value to tell us if the target has been found
+  
     found = False
-    pupulation = []
-
-    #this loop initializes all the population with all variations
+    population = []
+  
+    # create initial population
     for _ in range(POPULATION_SIZE):
-        gnome = Individual.createGenome()
-        pupulation.append(Individual(gnome))
-
-
-        
-
-
+                gnome = Individual.createGenome()    
+                population.append(Individual(gnome))
+  
+    while not found:
+  
+        # sort the population in increasing order of fitness score
+        population = sorted(population, key = lambda x:x.fitness)
+  
+        # if the individual having lowest fitness score ie. 
+        # 0 then we know that we have reached to the target
+        # and break the loop
+        if population[0].fitness <= 0:
+            found = True
+            break
+  
+        # Otherwise generate new offsprings for new generation
+        new_generation = []
+  
+        s = int((10*POPULATION_SIZE)/100)
+        new_generation.extend(population[:s])
+  
+        # From 50% of fittest population
+        s = int((90*POPULATION_SIZE)/100)
+        for _ in range(s):
+            parent1 = random.choice(population[:50])
+            parent2 = random.choice(population[:50])
+            child = parent1.mate(parent2)
+            new_generation.append(child)
+  
+        population = new_generation
+  
+        print(str(population[0].chromosome))
+        print("Generation: {}\tString: {}\tFitness: {}".\
+              format(generation,
+              "".join(population[0].chromosome),
+              population[0].fitness))
+  
+        generation += 1
+  
+      
+    print("Generation: {}\tString: {}\tFitness: {}".\
+          format(generation,
+          "".join(population[0].chromosome),
+          population[0].fitness))
+  
+if __name__ == '__main__':
+    main()
