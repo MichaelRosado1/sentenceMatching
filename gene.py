@@ -13,89 +13,93 @@ TARGET = "I love computer science"
 class Individual(object):
     def __init__(self, chromosome):
         self.chromosome = chromosome
-        self.fitness = self.calculateFitness()
+        self.fitness = self.cal_fitness()
 
     #function to create randome genes
+
     @classmethod
-    def mutatedGenes(self):
+    def mutated_genes(self):
+        '''
+        create random genes for mutation
+        '''
         global GENES
-        #random.choices will select a random letter from the genes set of chars
-        gene = random.choices(GENES)
+        gene = random.choice(GENES)
         return gene
 
-    #function to create the chromosome of genes
     @classmethod
-    def createGenome(self):
+    def create_gnome(self):
+        '''
+        create chromosome or string of genes
+        '''
         global TARGET
-        gnomeLength = len(TARGET)
-        #this will get exactly the number of letters in the target from the random gene function
-        return [self.mutatedGenes() for _ in range(gnomeLength)]
-    
+        gnome_len = len(TARGET)
+        return [self.mutated_genes() for _ in range(gnome_len)]
+
     #fuction to produce offspring
-    def mate(self, parent2):
-        childChromosome = []
-        #we want to look through the genomes in both chromosomes 
-        for genome1, genome2 in zip(self.chromosome, parent2.chromosome):
+    def mate(self, par2):
+        child_chromosome = []
+        for gp1, gp2 in zip(self.chromosome, par2.chromosome):
+            # random probability
+            prob = random.random()
 
-            #get a random probability
-            probability = random.random()
-            if probability < 0.45:
-                childChromosome.append(genome1)
+            # if prob is less than 0.45, insert gene
+            # from parent 1
+            if prob < 0.45:
+                child_chromosome.append(gp1)
 
-            elif probability < 0.90:
-                childChromosome.append(genome2)
+            # if prob is between 0.45 and 0.90, insert
+            # gene from parent 2
+            elif prob < 0.90:
+                child_chromosome.append(gp2)
 
+            # otherwise insert random gene(mutate),
+            # for maintaining diversity
             else:
-                childChromosome.append(self.mutatedGenes())
+                child_chromosome.append(self.mutatedGenes())
 
-        #return the new individual created by the mutations
-        return Individual(childChromosome)
-
+        # create new Individual(offspring) using
+        # generated chromosome for offspring
+        return Individual(child_chromosome)
 
     #function to calculate the fitness of the individual
-    def calculateFitness(self):
-        global TARGET
-        fitness = 0
-
-        for gs, gt in zip(self.chromosome, TARGET):
-            #if the two genes are not equal, then we increase fitness. In this program, the lower the number, the more fit it is
+    def cal_fitness(self):
+           global TARGET
+           fitness = 0
+           for gs, gt in zip(self.chromosome, TARGET):
             if gs != gt: fitness+= 1
-
-        return fitness
-
-
+            return fitness
 def main():
     global POPULATION_SIZE
-  
+
     #current generation
     generation = 1
-  
+
     found = False
     population = []
-  
+
     # create initial population
     for _ in range(POPULATION_SIZE):
-                gnome = Individual.createGenome()    
+                gnome = Individual.create_gnome()
                 population.append(Individual(gnome))
-  
+
     while not found:
-  
+
         # sort the population in increasing order of fitness score
         population = sorted(population, key = lambda x:x.fitness)
-  
-        # if the individual having lowest fitness score ie. 
+
+        # if the individual having lowest fitness score ie.
         # 0 then we know that we have reached to the target
         # and break the loop
         if population[0].fitness <= 0:
             found = True
             break
-  
+
         # Otherwise generate new offsprings for new generation
         new_generation = []
-  
+
         s = int((10*POPULATION_SIZE)/100)
         new_generation.extend(population[:s])
-  
+
         # From 50% of fittest population
         s = int((90*POPULATION_SIZE)/100)
         for _ in range(s):
@@ -103,22 +107,18 @@ def main():
             parent2 = random.choice(population[:50])
             child = parent1.mate(parent2)
             new_generation.append(child)
-  
+
         population = new_generation
-  
-        print(str(population[0].chromosome))
         print("Generation: {}\tString: {}\tFitness: {}".\
               format(generation,
               "".join(population[0].chromosome),
               population[0].fitness))
-  
         generation += 1
-  
-      
+
     print("Generation: {}\tString: {}\tFitness: {}".\
-          format(generation,
-          "".join(population[0].chromosome),
-          population[0].fitness))
-  
+              format(generation,
+              "".join(population[0].chromosome),
+              population[0].fitness))
+
 if __name__ == '__main__':
     main()
